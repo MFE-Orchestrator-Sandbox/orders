@@ -88,15 +88,18 @@ export const Orders = ({ orders: baseOrders = FAKE_ORDERS, placedOrders = [] }) 
 				: { key, dir: key === "total" || key === "date" ? "desc" : "asc" }
 		)
 
-	const sortMark = (key) => (sort.key === key ? (sort.dir === "asc" ? " ▲" : " ▼") : "")
+	// Frecce coperte dal subset latino del font pixel, così non cambia glifo.
+	const sortMark = (key) => (sort.key === key ? (sort.dir === "asc" ? " ↑" : " ↓") : "")
 
 	return (
 		<div className="mfe-orders">
 			<header className="mfe-orders__header">
+				<ParcelSprite />
 				<div>
 					<h2 className="mfe-orders__title">Ordini</h2>
 					<p className="mfe-orders__subtitle">
 						{visible.length} di {orders.length} ordini — dati dimostrativi
+						<span className="mfe-orders__caret" />
 					</p>
 				</div>
 			</header>
@@ -110,7 +113,7 @@ export const Orders = ({ orders: baseOrders = FAKE_ORDERS, placedOrders = [] }) 
 
 			<div className="mfe-orders__toolbar">
 				<input
-					className="mfe-orders__search"
+					className="mfe-orders__frame mfe-orders__search"
 					placeholder="Cerca per ordine, cliente o articolo…"
 					value={query}
 					onChange={(e) => setQuery(e.target.value)}
@@ -132,7 +135,7 @@ export const Orders = ({ orders: baseOrders = FAKE_ORDERS, placedOrders = [] }) 
 				))}
 			</div>
 
-			<div className="mfe-orders__table-wrap">
+			<div className="mfe-orders__frame mfe-orders__table-wrap">
 				<table className="mfe-orders__table">
 					<thead>
 						<tr>
@@ -172,7 +175,9 @@ export const Orders = ({ orders: baseOrders = FAKE_ORDERS, placedOrders = [] }) 
 						{visible.length === 0 && (
 							<tr>
 								<td className="mfe-orders__empty" colSpan={COLUMNS.length}>
-									Nessun ordine corrisponde ai filtri.
+									- Game over -
+									<br />
+									Nessun ordine corrisponde ai filtri
 								</td>
 							</tr>
 						)}
@@ -190,14 +195,32 @@ export const Orders = ({ orders: baseOrders = FAKE_ORDERS, placedOrders = [] }) 
 }
 
 const Kpi = ({ label, value }) => (
-	<div className="mfe-orders__kpi">
+	<div className="mfe-orders__frame mfe-orders__kpi">
 		<div className="mfe-orders__kpi-label">{label}</div>
 		<div className="mfe-orders__kpi-value">{value}</div>
+		<div className="mfe-orders__kpi-bar" />
 	</div>
 )
 
+/* Sprite 16x16 disegnato a rettangoli: scala senza sfocare. */
+const ParcelSprite = () => (
+	<svg
+		className="mfe-orders__sprite"
+		viewBox="0 0 16 16"
+		shapeRendering="crispEdges"
+		aria-hidden="true">
+		<rect x="1" y="2" width="14" height="13" fill="currentColor" />
+		<rect x="2" y="3" width="12" height="3" fill="#f0c48a" />
+		<rect x="2" y="6" width="12" height="8" fill="#d2954f" />
+		<rect x="2" y="6" width="12" height="1" fill="#a9743a" />
+		<rect x="7" y="3" width="2" height="11" fill="#6b3fe6" />
+		<rect x="3" y="8" width="3" height="1" fill="#a9743a" />
+		<rect x="3" y="10" width="2" height="1" fill="#a9743a" />
+	</svg>
+)
+
 const OrderDetail = ({ order, onClose }) => (
-	<section className="mfe-orders__detail">
+	<section className="mfe-orders__frame mfe-orders__detail">
 		<div className="mfe-orders__detail-head">
 			<h3 className="mfe-orders__detail-title">Dettaglio {order.id}</h3>
 			<button type="button" className="mfe-orders__close" onClick={onClose}>
@@ -213,28 +236,30 @@ const OrderDetail = ({ order, onClose }) => (
 			<DetailCell label="Totale" value={eur(order.total)} />
 		</div>
 
-		<table className="mfe-orders__items">
-			<thead>
-				<tr>
-					<th>SKU</th>
-					<th>Articolo</th>
-					<th className="mfe-orders__num">Q.tà</th>
-					<th className="mfe-orders__num">Prezzo</th>
-					<th className="mfe-orders__num">Riga</th>
-				</tr>
-			</thead>
-			<tbody>
-				{order.items.map((item) => (
-					<tr key={item.sku}>
-						<td className="mfe-orders__id">{item.sku}</td>
-						<td>{item.name}</td>
-						<td className="mfe-orders__num">{item.qty}</td>
-						<td className="mfe-orders__num">{eur(item.price)}</td>
-						<td className="mfe-orders__num">{eur(item.price * item.qty)}</td>
+		<div className="mfe-orders__items-wrap">
+			<table className="mfe-orders__items">
+				<thead>
+					<tr>
+						<th>SKU</th>
+						<th>Articolo</th>
+						<th className="mfe-orders__num">Q.tà</th>
+						<th className="mfe-orders__num">Prezzo</th>
+						<th className="mfe-orders__num">Riga</th>
 					</tr>
-				))}
-			</tbody>
-		</table>
+				</thead>
+				<tbody>
+					{order.items.map((item) => (
+						<tr key={item.sku}>
+							<td className="mfe-orders__id">{item.sku}</td>
+							<td>{item.name}</td>
+							<td className="mfe-orders__num">{item.qty}</td>
+							<td className="mfe-orders__num">{eur(item.price)}</td>
+							<td className="mfe-orders__num">{eur(item.price * item.qty)}</td>
+						</tr>
+					))}
+				</tbody>
+			</table>
+		</div>
 	</section>
 )
 
