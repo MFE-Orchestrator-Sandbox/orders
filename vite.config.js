@@ -7,10 +7,11 @@ export default defineConfig({
   plugins: [
     react(),
     federation({
-      name: "remote_app",
+      name: "orders",
       filename: "remoteEntry.js",
       exposes: {
-        './Button': './src/components/Button'
+        // Modulo principale del microfrontend: lo shell lo importa come "orders/Orders".
+        './Orders': './src/components/Orders'
       },
       shared: ['react','react-dom']
     })
